@@ -1,327 +1,166 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Digital Love Jar</title>
-  <style>
-    :root{--bg:#0f1724;--card:#0b1220;--accent:#ff8da1;--glass:rgba(255,255,255,0.06)}
-    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial}
-    body{background:linear-gradient(180deg,#071024 0%, #0b1630 60%);color:#e6eef8;display:flex;align-items:center;justify-content:center;padding:32px}
-    .app{width:100%;max-width:1100px}
-
-    /* layout */
-    .stage{display:grid;grid-template-columns:480px 1fr;gap:28px;align-items:start}
-    @media (max-width:920px){.stage{grid-template-columns:1fr}.jar-col{order:2}}
-
-    /* jar area */
-    .jar-wrap{background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border-radius:16px;padding:20px;box-shadow:0 6px 30px rgba(2,6,23,0.7);}
-    .jar{position:relative;height:420px;display:flex;align-items:flex-end;justify-content:center}
-    .jar-svg{width:320px;height:340px}
-
-    /* lid */
-    .lid{position:absolute;top:24px;left:50%;transform:translateX(-50%);transform-origin:50% 100%;transition:transform .45s cubic-bezier(.2,.9,.28,1)}
-    .lid.open{transform:translateX(-50%) rotate(-50deg) translateY(-18px)}
-
-    /* notes inside jar (stacked) */
-    .notes-stack{position:absolute;bottom:68px;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none}
-    .note-mini{width:160px;height:36px;background:linear-gradient(135deg,#fff,#fff);opacity:.95;border-radius:6px;transform:rotate(-10deg);box-shadow:0 6px 18px rgba(2,6,23,.4);display:flex;align-items:center;justify-content:center;font-weight:600;color:#222}
-
-    /* controls */
-    .controls{margin-top:16px;display:flex;gap:10px;align-items:center;justify-content:center}
-    button, .btn{background:var(--accent);border:none;color:#071022;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer}
-    .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#d9e9ff}
-
-    /* tray where pulled notes land */
-    .tray{min-height:320px;border-radius:12px;padding:18px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);box-shadow:inset 0 1px 0 rgba(255,255,255,0.02),0 6px 24px rgba(2,6,23,0.6);display:flex;flex-direction:column}
-    .tray .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-    .pulled-list{display:flex;flex-wrap:wrap;gap:12px}
-
-    .note-card{width:160px;min-height:110px;border-radius:10px;background:var(--glass);backdrop-filter:blur(6px);padding:10px;cursor:grab;position:relative}
-    .note-card img{max-width:100%;border-radius:8px;display:block;margin-bottom:6px}
-    .note-card p{margin:0;font-size:14px;color:#e6f1ff}
-
-    /* modal */
-    .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(1,6,22,0.6);z-index:60;opacity:0;pointer-events:none;transition:opacity .18s}
-    .modal.show{opacity:1;pointer-events:auto}
-    .modal .panel{max-width:720px;background:linear-gradient(180deg,#071829,#081826);padding:20px;border-radius:12px;box-shadow:0 10px 40px rgba(2,6,23,0.7)}
-    .modal img{max-width:100%;display:block;border-radius:8px}
-
-    /* form */
-    form.add-form{display:flex;flex-direction:column;gap:8px}
-    input[type="text"], textarea{padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit}
-
-    footer.note-hint{margin-top:10px;font-size:13px;color:rgba(230,238,248,0.6)}
-
-    /* small fancy */
-    h1{font-size:20px;margin:0 0 6px 0}
-    .muted{color:rgba(230,238,248,0.6);font-size:13px}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Love Marbles Jar — For Her</title>
+<style>
+  /* Single-file read-only Love Jar
+     - Notes are baked into the SAMPLES array below.
+     - To edit notes, open this file and modify the SAMPLES entries (instructions in the code).
+     - No add/import/export UI: this page is read-only for visitors.
+  */
+  :root{--bg:#fff6d9;--jarGlass:#e9f7ff22;--accent:#ff8da1}
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;color:#122}
+  body{background:var(--bg);display:flex;align-items:center;justify-content:center}
+  .center{width:880px;max-width:95vw;height:640px;display:flex;align-items:center;justify-content:center}
+  .jar-ui{position:relative;width:520px;height:560px}
+  canvas{display:block}
+  .lid{position:absolute;left:50%;top:72px;transform:translateX(-50%);width:240px;height:60px;border-radius:12px;background:linear-gradient(180deg,#f9d7da,#ffdbe2);box-shadow:0 8px 20px rgba(0,0,0,0.12);display:flex;align-items:center;justify-content:center;cursor:grab;user-select:none}
+  .hint{font-weight:700;color:#2a2a2a}
+  .muted{font-size:13px;color:#444;text-align:center;margin-top:12px}
+  .credit{position:fixed;left:10px;bottom:10px;font-size:12px;color:#3a3a3a;opacity:0.7}
+  .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(10,14,20,0.45);opacity:0;pointer-events:none;transition:opacity .18s}
+  .modal.show{opacity:1;pointer-events:auto}
+  .modal .box{background:white;padding:18px;border-radius:12px;max-width:720px;max-height:86vh;overflow:auto}
+  .close{margin-top:8px;padding:6px 10px;border-radius:8px;border:none;background:#ddd}
+</style>
 </head>
 <body>
-  <div class="app">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-      <div>
-        <h1>Digital Love Jar</h1>
-        <div class="muted">Open the lid, pull out a note, or add your own — saved locally.</div>
-      </div>
-      <div class="muted">Host: Neocities / any static host — upload this file as <code>index.html</code></div>
-    </div>
-
-    <div class="stage">
-      <div class="jar-wrap">
-        <div class="jar">
-          <!-- SVG jar -->
-          <svg class="jar-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="g1" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stop-color="#a6f3ff" stop-opacity="0.06"/>
-                <stop offset="100%" stop-color="#fff" stop-opacity="0.02"/>
-              </linearGradient>
-            </defs>
-            <!-- glass body -->
-            <g transform="translate(0,8)">
-              <path fill="url(#g1)" stroke="rgba(255,255,255,0.06)" stroke-width="1.4" d="M40 40 q-10 60 20 110 q30 40 60 0 q30 -50 20 -110 z" />
-              <ellipse cx="100" cy="30" rx="34" ry="8" fill="rgba(255,255,255,0.03)" />
-            </g>
-
-            <!-- lid (will be controlled via JS by toggling class on group with id lid)-->
-            <g id="lid" class="lid" transform="translate(50,12)">
-              <rect x="0" y="0" width="100" height="20" rx="6" ry="6" fill="#f2c6d0" stroke="rgba(0,0,0,0.08)" />
-              <rect x="10" y="18" width="80" height="8" rx="4" ry="4" fill="#ffdbe2" />
-            </g>
-          </svg>
-
-          <!-- little mini notes visible in jar -->
-          <div class="notes-stack" id="notesStack" aria-hidden="true"></div>
-        </div>
-
-        <div class="controls">
-          <button id="toggleLid" class="btn">Open Lid</button>
-          <button id="pullNote" class="btn secondary">Pull a Note</button>
-          <button id="surprise" class="btn secondary">Surprise (Random)</button>
-        </div>
-
-        <div style="margin-top:14px;text-align:center;color:rgba(230,238,248,0.7);font-size:13px">Tip: Add notes below. Images are stored locally (data URL) and persist in this browser.</div>
-      </div>
-
-      <div class="tray">
-        <div class="header">
-          <div>
-            <strong>Pulled Notes</strong>
-            <div class="muted">Drag to arrange. Click to open.</div>
-          </div>
-          <div style="display:flex;gap:8px;align-items:center">
-            <button id="clearAll" class="btn secondary">Clear All</button>
-            <button id="exportBtn" class="btn">Export</button>
-          </div>
-        </div>
-
-        <div class="pulled-list" id="pulledList"></div>
-
-        <hr style="margin:14px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)" />
-
-        <form id="addForm" class="add-form">
-          <input id="noteText" type="text" placeholder="Write a short note (e.g., "I love your laugh")" />
-          <input id="noteImage" type="file" accept="image/*" />
-          <div style="display:flex;gap:8px">
-            <button type="submit" class="btn">Add Note</button>
-            <button id="addSample" type="button" class="btn secondary">Add Sample Notes</button>
-          </div>
-        </form>
-
-        <div class="note-hint">Notes are saved locally in your browser. To move the jar to another device, use Export.</div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- modal -->
-  <div id="modal" class="modal" role="dialog" aria-modal="true">
-    <div class="panel">
-      <div id="modalContent"></div>
-      <div style="text-align:right;margin-top:10px"><button id="closeModal" class="btn secondary">Close</button></div>
+  <div class="center">
+    <div class="jar-ui" id="jarUI">
+      <canvas id="c" width="520" height="560" aria-label="Glass jar with marbles"></canvas>
+      <div class="lid" id="lid"><div class="hint">Twist & Pull</div></div>
+      <div class="muted">Open the lid (drag) and pull marbles up to reveal a note. This page is read-only.</div>
     </div>
   </div>
 
-  <script>
-    // Simple digital jar app
-    const lid = document.getElementById('lid');
-    const toggleLid = document.getElementById('toggleLid');
-    const notesStack = document.getElementById('notesStack');
-    const pullNoteBtn = document.getElementById('pullNote');
-    const surpriseBtn = document.getElementById('surprise');
-    const pulledList = document.getElementById('pulledList');
-    const addForm = document.getElementById('addForm');
-    const noteText = document.getElementById('noteText');
-    const noteImage = document.getElementById('noteImage');
-    const modal = document.getElementById('modal');
-    const modalContent = document.getElementById('modalContent');
-    const closeModal = document.getElementById('closeModal');
-    const clearAll = document.getElementById('clearAll');
-    const exportBtn = document.getElementById('exportBtn');
-    const addSample = document.getElementById('addSample');
+  <div id="modal" class="modal" role="dialog"><div class="box" id="modalBox"></div></div>
 
-    let isOpen = false;
+<script>
+/* ===============================
+   Read-only Love Jar
+   - Edit the SAMPLES array below to change the baked-in notes.
+   - Each entry becomes a marble inside the jar.
+   - No local editing UI is available on the page; editing requires modifying this file.
+   =============================== */
 
-    // notes structure: {id, text, imageDataUrl}
-    const storageKey = 'digital-jar-notes-v1';
-    let notes = JSON.parse(localStorage.getItem(storageKey) || '[]');
-    let pulled = JSON.parse(localStorage.getItem(storageKey + '-pulled') || '[]');
+const SAMPLES = [
+  // Example placeholders — replace these strings with your actual notes.
+  { id: 'fixed-1', text: "(placeholder) Pull me to find a love note.", image: null },
+  { id: 'fixed-2', text: "(placeholder) You can replace these in the HTML.", image: null },
+  { id: 'fixed-3', text: "(placeholder) Each marble hides one message for her.", image: null }
+];
 
-    function save(){
-      localStorage.setItem(storageKey, JSON.stringify(notes));
-      localStorage.setItem(storageKey + '-pulled', JSON.stringify(pulled));
+const CONFIG = {
+  jar: {x:260,y:420,rx:160,ry:210,neckY:160,innerShrink:18},
+  gravity: 0.45,
+  friction: 0.998,
+  bounce: 0.74,
+  marbleRadius: 14
+};
+
+const c = document.getElementById('c');
+const ctx = c.getContext('2d');
+let W = c.width, H = c.height;
+const lidEl = document.getElementById('lid');
+let lidRot = 0, lidOpen=false, draggingLid=false, lidStartX=0, startRot=0;
+let marbles = [];
+let notesPulled = [];
+const modal = document.getElementById('modal'), modalBox = document.getElementById('modalBox');
+
+function uid(base){ return base || 'm-'+Math.random().toString(36).slice(2,9); }
+
+function createMarble(note){
+  const r = CONFIG.marbleRadius;
+  const angle = (Math.random()*1.2)-0.6;
+  const x = CONFIG.jar.x + Math.sin(angle)*20;
+  const y = CONFIG.jar.y - CONFIG.jar.ry + 40 + Math.random()*30;
+  const m = {id:note.id||uid(), text:note.text||'', image:note.image||null, x,y,vx:(Math.random()*2-1),vy:(Math.random()*2-1),r, grabbed:false, removed:false};
+  marbles.push(m);
+}
+
+function drawJar(){
+  ctx.clearRect(0,0,W,H);
+  const j = CONFIG.jar;
+  ctx.fillStyle = 'rgba(0,0,0,0.06)'; ctx.beginPath(); ctx.ellipse(j.x, j.y+6, j.rx+8, j.ry+10, 0, 0, Math.PI*2); ctx.fill();
+  const grad = ctx.createLinearGradient(0,j.y-j.ry,0,j.y+j.ry);
+  grad.addColorStop(0,'rgba(255,255,255,0.6)'); grad.addColorStop(0.35,'rgba(255,255,255,0.12)'); grad.addColorStop(1,'rgba(255,255,255,0.05)');
+  ctx.fillStyle = grad; ctx.beginPath(); ctx.ellipse(j.x,j.y,j.rx,j.ry,0,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,0.45)'; ctx.lineWidth=2; ctx.beginPath(); ctx.ellipse(j.x,j.y,j.rx-6,j.ry-6,0,0,Math.PI*2); ctx.stroke();
+  ctx.fillStyle='rgba(255,255,255,0.92)'; ctx.beginPath(); ctx.ellipse(j.x, j.y - j.ry + (j.neckY- (j.y-j.ry)), j.rx/2.2, 18, 0, 0, Math.PI*2); ctx.fill();
+}
+
+function drawMarbles(){
+  for(const m of marbles){
+    if(m.removed) continue;
+    ctx.beginPath(); ctx.arc(m.x,m.y,m.r,0,Math.PI*2); ctx.closePath();
+    const g = ctx.createRadialGradient(m.x-4,m.y-6,m.r*0.1,m.x,m.y,m.r);
+    g.addColorStop(0,'rgba(255,255,255,0.9)'); g.addColorStop(0.6,'rgba(255,255,255,0.3)'); g.addColorStop(1,'rgba(0,0,0,0.06)');
+    ctx.fillStyle = g; ctx.fill();
+    if(m.image){ const img=new Image(); img.src=m.image; img.onload=()=>{ ctx.save(); ctx.beginPath(); ctx.arc(m.x,m.y,m.r-1,0,Math.PI*2); ctx.clip(); ctx.drawImage(img,m.x-m.r,m.y-m.r,m.r*2,m.r*2); ctx.restore(); }; }
+    ctx.strokeStyle='rgba(255,255,255,0.6)'; ctx.lineWidth=1; ctx.beginPath(); ctx.arc(m.x,m.y,m.r-0.5,0,Math.PI*2); ctx.stroke();
+  }
+}
+
+function step(){
+  const j = CONFIG.jar;
+  for(const m of marbles){
+    if(m.removed) continue;
+    if(m.grabbed) continue;
+    m.vy += CONFIG.gravity; m.vx *= CONFIG.friction; m.vy *= CONFIG.friction; m.x += m.vx; m.y += m.vy;
+    const ix = j.rx - j.innerShrink; const iy = j.ry - j.innerShrink;
+    const dx = (m.x - j.x)/ix; const dy = (m.y - j.y)/iy;
+    if(dx*dx + dy*dy > 1){
+      const ang = Math.atan2(m.y-j.y,m.x-j.x);
+      m.x = j.x + Math.cos(ang)*ix*0.98; m.y = j.y + Math.sin(ang)*iy*0.98;
+      const nx = Math.cos(ang), ny = Math.sin(ang); const vdot = m.vx*nx + m.vy*ny;
+      m.vx = m.vx - 1.9*vdot*nx; m.vy = m.vy - 1.9*vdot*ny; m.vx *= CONFIG.bounce; m.vy *= CONFIG.bounce;
     }
-
-    function renderStack(){
-      notesStack.innerHTML='';
-      // show up to 6 minis
-      const mini = notes.slice(0,6);
-      mini.forEach((n,i)=>{
-        const d = document.createElement('div');
-        d.className='note-mini';
-        d.style.transform = `translateY(-${i*4}px) rotate(${(i%2? -10:8)}deg)`;
-        d.textContent = n.text ? n.text.substring(0,28) : 'a note';
-        notesStack.appendChild(d);
-      })
+    if(m.y > H - m.r - 6){ m.y = H - m.r - 6; m.vy *= -CONFIG.bounce; }
+  }
+  for(let i=0;i<marbles.length;i++){
+    for(let j=i+1;j<marbles.length;j++){
+      const a=marbles[i], b=marbles[j]; if(a.removed||b.removed) continue;
+      const dx=b.x-a.x, dy=b.y-a.y; const dist=Math.hypot(dx,dy); const min = a.r+b.r;
+      if(dist>0 && dist<min){ const overlap=(min-dist)/2; const nx=dx/dist, ny=dy/dist; a.x -= nx*overlap; a.y -= ny*overlap; b.x += nx*overlap; b.y += ny*overlap; const vx=a.vx, vy=a.vy; a.vx=b.vx*0.9; a.vy=b.vy*0.9; b.vx=vx*0.9; b.vy=vy*0.9; }
     }
+  }
+}
 
-    function renderPulled(){
-      pulledList.innerHTML='';
-      pulled.forEach((n,idx)=>{
-        const card = document.createElement('div');
-        card.className='note-card';
-        card.setAttribute('draggable','true');
-        card.dataset.id = n.id;
-        if(n.image){
-          const img = document.createElement('img');
-          img.src = n.image;
-          card.appendChild(img);
-        }
-        if(n.text){
-          const p = document.createElement('p'); p.textContent = n.text; card.appendChild(p);
-        }
-        card.addEventListener('click', (e)=>{
-          // open modal
-          openModal(n);
-        });
+let grab = null;
+function findMarbleAt(x,y){ for(let i=marbles.length-1;i>=0;i--){ const m=marbles[i]; if(m.removed) continue; if(Math.hypot(m.x-x,m.y-y) <= m.r+2) return m; } return null }
 
-        // drag handlers to reorder
-        card.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', n.id); card.style.opacity='0.5' });
-        card.addEventListener('dragend', e => { card.style.opacity='1' });
-        card.addEventListener('dragover', e => e.preventDefault());
-        card.addEventListener('drop', e => {
-          e.preventDefault();
-          const draggedId = e.dataTransfer.getData('text/plain');
-          reorderPulled(draggedId, n.id);
-        });
+function revealMarble(m){ m.removed=true; notesPulled.unshift({id:m.id,text:m.text,image:m.image}); openModal({text:m.text,image:m.image}); }
 
-        pulledList.appendChild(card);
-      });
-    }
+function openModal(note){ modal.classList.add('show'); modalBox.innerHTML=''; if(note.image){ const im=document.createElement('img'); im.src=note.image; im.style.maxWidth='100%'; im.style.borderRadius='8px'; modalBox.appendChild(im);} const p=document.createElement('p'); p.textContent=note.text; p.style.marginTop='8px'; modalBox.appendChild(p); const close=document.createElement('button'); close.textContent='Close'; close.className='close'; close.onclick=()=>modal.classList.remove('show'); modalBox.appendChild(close); }
 
-    function reorderPulled(fromId, toId){
-      const fromIdx = pulled.findIndex(x=>x.id===fromId);
-      const toIdx = pulled.findIndex(x=>x.id===toId);
-      if(fromIdx<0||toIdx<0) return;
-      const [item] = pulled.splice(fromIdx,1);
-      pulled.splice(toIdx,0,item);
-      save(); renderPulled();
-    }
+/* ---------- interactions ---------- */
+function onLidDown(e){ draggingLid=true; lidEl.style.cursor='grabbing'; lidStartX = (e.touches? e.touches[0].clientX : e.clientX); startRot = lidRot; }
+function onLidMove(e){ if(!draggingLid) return; const x = (e.touches? e.touches[0].clientX : e.clientX); const dx = x - lidStartX; lidRot = Math.max(-120, Math.min(20, startRot + dx*0.25)); lidEl.style.transform = `translateX(-50%) rotate(${lidRot}deg)`; if(lidRot < -45) lidOpen=true; }
+function onLidUp(e){ draggingLid=false; lidEl.style.cursor='grab'; if(!lidOpen){ lidRot = 0; lidEl.style.transform='translateX(-50%) rotate(0deg)'; } }
 
-    function openModal(note){
-      modalContent.innerHTML='';
-      if(note.image){
-        const img = document.createElement('img'); img.src = note.image; modalContent.appendChild(img);
-      }
-      if(note.text){
-        const p = document.createElement('p'); p.style.marginTop='10px'; p.textContent = note.text; modalContent.appendChild(p);
-      }
-      modal.classList.add('show');
-    }
-    closeModal.addEventListener('click', ()=> modal.classList.remove('show'));
-    modal.addEventListener('click', (e)=>{ if(e.target===modal) modal.classList.remove('show') });
+function onDown(e){ const rect=c.getBoundingClientRect(); const x=(e.touches?e.touches[0].clientX:e.clientX)-rect.left; const y=(e.touches?e.touches[0].clientY:e.clientY)-rect.top; const m=findMarbleAt(x,y); if(m){ grab={id:m.id, offx:x-m.x, offy:y-m.y}; m.grabbed=true; m.vx=0; m.vy=0; } }
+function onMove(e){ if(!grab) return; const rect=c.getBoundingClientRect(); const x=(e.touches?e.touches[0].clientX:e.clientX)-rect.left; const y=(e.touches?e.touches[0].clientY:e.clientY)-rect.top; const m=marbles.find(x=>x.id===grab.id); if(!m) return; m.x = x - grab.offx; m.y = y - grab.offy; }
+function onUp(e){ if(grab){ const m=marbles.find(x=>x.id===grab.id); if(m){ m.grabbed=false; const rimY = CONFIG.jar.y - CONFIG.jar.ry + 40; if(m.y < rimY - 30 && lidOpen){ revealMarble(m); } } grab=null; } }
 
-    toggleLid.addEventListener('click', ()=>{
-      isOpen = !isOpen;
-      lid.classList.toggle('open', isOpen);
-      toggleLid.textContent = isOpen ? 'Close Lid' : 'Open Lid';
-    })
+function loop(){ step(); drawJar(); drawMarbles(); requestAnimationFrame(loop); }
 
-    function pullNote(){
-      if(notes.length===0) return alert('No notes in the jar yet — add one below!');
-      // pick first note (like pulling from top) or random if surprise
-      const n = notes.shift();
-      pulled.unshift(n);
-      save(); renderStack(); renderPulled();
-      // small animation: create floating clone that moves up
-      animatePull(n);
-    }
+function init(){ const dpr = window.devicePixelRatio||1; c.width = 520*dpr; c.height = 560*dpr; c.style.width='520px'; c.style.height='560px'; ctx.setTransform(dpr,0,0,dpr,0,0); W=520; H=560; // create marbles from SAMPLES
+  for(const s of SAMPLES){ createMarble(s); }
+  loop(); }
 
-    function animatePull(note){
-      const stack = document.querySelector('.jar');
-      const clone = document.createElement('div');
-      clone.style.position='absolute'; clone.style.bottom='40px'; clone.style.left='50%'; clone.style.transform='translateX(-50%)';
-      clone.style.width='180px'; clone.style.padding='10px'; clone.style.borderRadius='8px'; clone.style.background='rgba(255,255,255,0.95)'; clone.style.color='#101010'; clone.style.fontWeight='700'; clone.style.boxShadow='0 10px 30px rgba(2,6,23,0.6)';
-      clone.textContent = note.text ? note.text.substring(0,60) : 'a note';
-      stack.appendChild(clone);
-      setTimeout(()=>{ clone.style.transition='transform .9s cubic-bezier(.2,.9,.28,1),opacity .9s'; clone.style.transform='translate(-50%, -220px) rotate(-6deg)'; clone.style.opacity='0'; },60);
-      setTimeout(()=> clone.remove(),1100);
-    }
+// events
+lidEl.addEventListener('pointerdown', (e)=>{ lidEl.setPointerCapture(e.pointerId); onLidDown(e); });
+window.addEventListener('pointermove', onLidMove); window.addEventListener('pointerup', onLidUp);
 
-    pullNoteBtn.addEventListener('click', ()=>{ if(!isOpen){ lid.classList.add('open'); isOpen=true; toggleLid.textContent='Close Lid' } pullNote(); });
-    surpriseBtn.addEventListener('click', ()=>{
-      if(notes.length===0) return alert('No notes yet — add a few!');
-      const idx = Math.floor(Math.random()*notes.length);
-      const n = notes.splice(idx,1)[0];
-      pulled.unshift(n); save(); renderStack(); renderPulled(); animatePull(n);
-    })
+c.addEventListener('pointerdown', onDown); window.addEventListener('pointermove', onMove); window.addEventListener('pointerup', onUp);
+modal.addEventListener('click',(e)=>{ if(e.target===modal) modal.classList.remove('show'); });
 
-    addForm.addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const txt = noteText.value.trim();
-      let imgData = null;
-      if(noteImage.files && noteImage.files[0]){
-        imgData = await toDataURL(noteImage.files[0]);
-      }
-      const obj = {id: 'n-'+Date.now(), text: txt, image: imgData};
-      notes.unshift(obj);
-      noteText.value=''; noteImage.value='';
-      save(); renderStack();
-    })
+init();
 
-    addSample.addEventListener('click', ()=>{
-      const samples = [
-        {id:'s1', text:'I love the way you make mornings feel like home.'},
-        {id:'s2', text:'You are stronger than you think.'},
-        {id:'s3', text:'Remember that time we laughed until we cried? That was perfect.'}
-      ];
-      notes = samples.concat(notes);
-      save(); renderStack();
-    })
+</script>
 
-    clearAll.addEventListener('click', ()=>{
-      if(!confirm('Clear all pulled notes?')) return;
-      pulled = []; save(); renderPulled();
-    })
-
-    exportBtn.addEventListener('click', ()=>{
-      const payload = {notes, pulled};
-      const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = 'digital-jar-export.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-    })
-
-    function toDataURL(file){
-      return new Promise((res,rej)=>{
-        const fr = new FileReader(); fr.onload = ()=> res(fr.result); fr.onerror = rej; fr.readAsDataURL(file);
-      })
-    }
-
-    // load on start
-    function boot(){ renderStack(); renderPulled(); }
-    boot();
-  </script>
+<div class="credit">Made with care — edit the HTML to replace placeholder notes.</div>
 </body>
 </html>
