@@ -1,113 +1,54 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>I love you sen</title>
 <style>
 :root {
   --bg: #fff6d9;
   --note: #f8f8f3;
 }
-html, body {
-  height: 100%;
-  margin: 0;
-  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial;
-  color: #122;
+html,body{
+  height:100%;
+  margin:0;
+  font-family:Inter,system-ui,sans-serif;
+  background:var(--bg);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#122;
 }
-body {
-  background: var(--bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.center {
-  width: 920px;
-  max-width: 96vw;
-  height: 700px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-}
-.jar-wrap {
-  position: relative;
-  width: 600px;
-  height: 620px;
-}
-canvas {
-  display: block;
-}
-.modal {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(10,14,20,0.45);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .18s;
-}
-.modal.show {
-  opacity: 1;
-  pointer-events: auto;
-}
-.modal .box {
-  background: white;
-  padding: 18px;
-  border-radius: 12px;
-  max-width: 720px;
-  max-height: 86vh;
-  overflow: auto;
-}
-.close {
-  margin-top: 8px;
-  padding: 6px 10px;
-  border-radius: 8px;
-  border: none;
-  background: #ddd;
-}
-.floating-note {
-  position: absolute;
-  padding: 12px 18px;
-  background: var(--note);
-  border-radius: 8px;
-  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-  font-size: 14px;
-  width: max-content;
-  max-width: 200px;
-  line-height: 1.4;
-  opacity: 0;
-  transform-origin: center;
-  pointer-events: none;
+.center{width:980px;max-width:96vw;height:760px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.jar-wrap{position:relative;width:640px;height:700px;}
+canvas{display:block;}
+.modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(10,14,20,.45);opacity:0;pointer-events:none;transition:opacity .18s;}
+.modal.show{opacity:1;pointer-events:auto;}
+.modal .box{background:white;padding:18px;border-radius:12px;max-width:720px;max-height:86vh;overflow:auto;}
+.close{margin-top:8px;padding:6px 10px;border:none;border-radius:8px;background:#ddd;}
+.floating-note{
+  position:absolute;padding:12px 18px;background:var(--note);
+  border-radius:8px;box-shadow:0 6px 12px rgba(0,0,0,0.1);
+  font-size:14px;width:max-content;max-width:200px;line-height:1.4;
+  opacity:0;transform-origin:center;pointer-events:none;
   background-image:
-    radial-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
-    linear-gradient(to bottom right, rgba(255,255,255,0.4), rgba(220,220,220,0.1));
-  background-size: 3px 3px, 100% 100%;
+    radial-gradient(rgba(0,0,0,0.03)1px,transparent 1px),
+    linear-gradient(to bottom right,rgba(255,255,255,0.4),rgba(220,220,220,0.1));
+  background-size:3px 3px,100% 100%;
 }
-@keyframes floatUp {
-  0% { transform: scale(0.9) rotate(3deg); opacity: 0; }
-  10% { opacity: 1; }
-  60% { transform: translateY(-120px) rotate(-3deg) scale(1); opacity: 1; }
-  100% { transform: translateY(-200px) rotate(2deg) scale(1.05); opacity: 0; }
+@keyframes floatUp{
+  0%{transform:scale(.9)rotate(3deg);opacity:0;}
+  10%{opacity:1;}
+  60%{transform:translateY(-120px)rotate(-3deg)scale(1);opacity:1;}
+  100%{transform:translateY(-200px)rotate(2deg)scale(1.05);opacity:0;}
 }
-.credit {
-  position: fixed;
-  left: 12px;
-  bottom: 10px;
-  font-size: 12px;
-  color: #3a3a3a;
-  opacity: 0.7;
-}
+.credit{position:fixed;left:12px;bottom:10px;font-size:12px;color:#3a3a3a;opacity:.7;}
 </style>
 </head>
 <body>
 <div class="center">
   <h2 style="margin:8px 0 12px 0">Things i love about you (Pull the marbles out!!)</h2>
-  <div class="jar-wrap">
-    <canvas id="c" width="600" height="620"></canvas>
-  </div>
+  <div class="jar-wrap"><canvas id="c" width="640" height="700"></canvas></div>
 </div>
 <div id="modal" class="modal"><div class="box" id="modalBox"></div></div>
 <div class="credit">i lab you senn</div>
@@ -166,136 +107,155 @@ const SAMPLES = [
   { id: '50', text: "i love that somehow, you always make everything okay" },
 ];
 
-const CONFIG = {
-  canvasW:600, canvasH:620,
-  jar: { x:300, y:380, width:320, height:360, neckWidth:120, neckY:160, rimHeight:22 },
-  gravity:0.45, friction:0.997, bounce:0.78, marbleRadius:14
+
+const CONFIG={
+ canvasW:640,canvasH:700,
+ jar:{x:320,y:430,width:380,height:400,neckWidth:140,neckY:160,rimHeight:24},
+ gravity:0.45,friction:0.997,bounce:0.8,marbleRadius:14
 };
 
-const c=document.getElementById('c');
-const ctx=c.getContext('2d');
+const c=document.getElementById('c'),ctx=c.getContext('2d');
 let marbles=[],grab=null;
-const modal=document.getElementById('modal'), modalBox=document.getElementById('modalBox');
+const modal=document.getElementById('modal'),modalBox=document.getElementById('modalBox');
 
 function rand(a,b){return Math.random()*(b-a)+a;}
 
 function drawJarShape(){
-  const j=CONFIG.jar;
-  const left=j.x-j.width/2,right=j.x+j.width/2,top=j.y-j.height/2,bottom=j.y+j.height/2;
-  ctx.save();
-  const body=new Path2D();
-  body.moveTo(left+48,top+40);
-  body.bezierCurveTo(left+8,top+120,left+20,bottom-60,left+40,bottom-24);
-  body.bezierCurveTo(left+80,bottom+28,right-80,bottom+28,right-40,bottom-24);
-  body.bezierCurveTo(right-20,bottom-60,right-8,top+120,right-48,top+40);
-  body.bezierCurveTo(right-80,top+10,left+80,top+10,left+48,top+40);
-  const grad=ctx.createLinearGradient(0,top,0,bottom);
-  grad.addColorStop(0,'rgba(255,255,255,0.85)');
-  grad.addColorStop(1,'rgba(240,240,240,0.06)');
-  ctx.fillStyle=grad; ctx.fill(body);
-  ctx.beginPath(); ctx.ellipse(j.x,bottom+10,j.width/2-30,18,0,0,Math.PI*2);
-  ctx.fillStyle='rgba(0,0,0,0.08)'; ctx.fill();
-  ctx.restore();
+ const j=CONFIG.jar;
+ const left=j.x-j.width/2,right=j.x+j.width/2,top=j.y-j.height/2,bottom=j.y+j.height/2;
+ ctx.save();
+ const body=new Path2D();
+ body.moveTo(left+60,top+40);
+ body.bezierCurveTo(left+10,top+140,left+20,bottom-60,left+40,bottom-24);
+ body.bezierCurveTo(left+80,bottom+30,right-80,bottom+30,right-40,bottom-24);
+ body.bezierCurveTo(right-20,bottom-60,right-10,top+140,right-60,top+40);
+ body.bezierCurveTo(right-90,top+10,left+90,top+10,left+60,top+40);
+ const grad=ctx.createLinearGradient(0,top,0,bottom);
+ grad.addColorStop(0,'rgba(255,255,255,0.85)');
+ grad.addColorStop(1,'rgba(240,240,240,0.06)');
+ ctx.fillStyle=grad;ctx.fill(body);
+ ctx.beginPath();ctx.ellipse(j.x,bottom+12,j.width/2-30,18,0,0,Math.PI*2);
+ ctx.fillStyle='rgba(0,0,0,0.08)';ctx.fill();
+ ctx.restore();
 }
 
 function createMarble(note){
-  const j=CONFIG.jar;
-  const minX=j.x-j.width/2+40,maxX=j.x+j.width/2-40;
-  const x=rand(minX,maxX),y=rand(j.y-j.height/2+80,j.y+j.height/2-40);
-  marbles.push({id:note.id,text:note.text,x,y,vx:rand(-1,1),vy:rand(-1,1),r:CONFIG.marbleRadius});
+ const j=CONFIG.jar;
+ const minX=j.x-j.width/2+50,maxX=j.x+j.width/2-50;
+ const x=rand(minX,maxX),y=rand(j.y-j.height/2+80,j.y+j.height/2-60);
+ marbles.push({id:note.id,text:note.text,x,y,vx:rand(-1,1),vy:rand(-1,1),r:CONFIG.marbleRadius});
 }
 
 function drawMarbles(){
-  for(const m of marbles){
-    const g=ctx.createRadialGradient(m.x-4,m.y-6,1,m.x,m.y,m.r);
-    g.addColorStop(0,'#fff');g.addColorStop(1,'#acc');
-    ctx.beginPath();ctx.arc(m.x,m.y,m.r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
-  }
+ for(const m of marbles){
+   const g=ctx.createRadialGradient(m.x-4,m.y-6,1,m.x,m.y,m.r);
+   g.addColorStop(0,'#fff');g.addColorStop(1,'#acc');
+   ctx.beginPath();ctx.arc(m.x,m.y,m.r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
+ }
 }
 
 function step(){
-  const j=CONFIG.jar,ix=j.width/2-36,iy=j.height/2-36;
-  for(const m of marbles){
-    if(m.grabbed)continue;
-    m.vy+=CONFIG.gravity;m.vx*=CONFIG.friction;m.vy*=CONFIG.friction;
-    m.x+=m.vx;m.y+=m.vy;
-    const dx=(m.x-j.x)/ix,dy=(m.y-j.y)/iy;
-    if(dx*dx+dy*dy>1){
-      const ang=Math.atan2(m.y-j.y,m.x-j.x);
-      m.x=j.x+Math.cos(ang)*ix*0.98;m.y=j.y+Math.sin(ang)*iy*0.98;
-      const nx=Math.cos(ang),ny=Math.sin(ang);
-      const vdot=m.vx*nx+m.vy*ny;
-      m.vx-=1.9*vdot*nx;m.vy-=1.9*vdot*ny;
-      m.vx*=CONFIG.bounce;m.vy*=CONFIG.bounce;
-    }
-  }
+ const j=CONFIG.jar;
+ for(const m of marbles){
+   if(m.grabbed)continue;
+   m.vy+=CONFIG.gravity;m.vx*=CONFIG.friction;m.vy*=CONFIG.friction;
+   m.x+=m.vx;m.y+=m.vy;
+   const ix=j.width/2-40,iy=j.height/2-40;
+   const dx=(m.x-j.x)/ix,dy=(m.y-j.y)/iy;
+   if(dx*dx+dy*dy>1){
+     const ang=Math.atan2(m.y-j.y,m.x-j.x);
+     m.x=j.x+Math.cos(ang)*ix*0.98;
+     m.y=j.y+Math.sin(ang)*iy*0.98;
+     const nx=Math.cos(ang),ny=Math.sin(ang);
+     const vdot=m.vx*nx+m.vy*ny;
+     m.vx-=1.9*vdot*nx;m.vy-=1.9*vdot*ny;
+     m.vx*=CONFIG.bounce;m.vy*=CONFIG.bounce;
+   }
+ }
+ // collisions between marbles
+ for(let i=0;i<marbles.length;i++){
+   for(let j=i+1;j<marbles.length;j++){
+     const a=marbles[i],b=marbles[j];
+     const dx=b.x-a.x,dy=b.y-a.y,dist=Math.hypot(dx,dy);
+     const minDist=a.r+b.r;
+     if(dist<minDist){
+       const overlap=(minDist-dist)/2;
+       const nx=dx/dist,ny=dy/dist;
+       a.x-=nx*overlap;b.x+=nx*overlap;
+       a.y-=ny*overlap;b.y+=ny*overlap;
+       const dvx=b.vx-a.vx,dvy=b.vy-a.vy;
+       const impact=(dvx*nx+dvy*ny);
+       if(impact>0)continue;
+       const impulse=(2*impact)/(1+1);
+       a.vx+=impulse*nx;a.vy+=impulse*ny;
+       b.vx-=impulse*nx;b.vy-=impulse*ny;
+     }
+   }
+ }
 }
 
 function findMarbleAt(x,y){
-  for(let i=marbles.length-1;i>=0;i--){
-    const m=marbles[i];
-    if(Math.hypot(m.x-x,m.y-y)<=m.r+2)return m;
-  }
-  return null;
+ for(let i=marbles.length-1;i>=0;i--){
+   const m=marbles[i];
+   if(Math.hypot(m.x-x,m.y-y)<=m.r+2)return m;
+ }
+ return null;
 }
 
 function revealMarble(m){
-  marbles=marbles.filter(x=>x.id!==m.id);
-  floatNote(m.x,m.y,m.text);
+ marbles=marbles.filter(x=>x.id!==m.id);
+ floatNote(m.x,m.y,m.text);
 }
 
 function floatNote(x,y,text){
-  const note=document.createElement('div');
-  note.className='floating-note';
-  note.textContent=text;
-  const jarRect=c.getBoundingClientRect();
-  const wrap=document.querySelector('.jar-wrap');
-  note.style.left=`${x-jarRect.left-40}px`;
-  note.style.top=`${y-jarRect.top-30}px`;
-  wrap.appendChild(note);
-  note.style.animation='floatUp 2.2s ease-out forwards';
-  note.style.opacity='1';
-  setTimeout(()=>{
-    wrap.removeChild(note);
-    openModal({text});
-  },2100);
+ const note=document.createElement('div');
+ note.className='floating-note';
+ note.textContent=text;
+ const jarRect=c.getBoundingClientRect();
+ const wrap=document.querySelector('.jar-wrap');
+ note.style.left=`${x-jarRect.left-40}px`;
+ note.style.top=`${y-jarRect.top-30}px`;
+ wrap.appendChild(note);
+ note.style.animation='floatUp 2.2s ease-out forwards';
+ note.style.opacity='1';
+ setTimeout(()=>{wrap.removeChild(note);openModal({text});},2100);
 }
 
 function openModal(note){
-  modal.classList.add('show');
-  modalBox.innerHTML=`<p>${note.text}</p><button class='close'>Close</button>`;
-  modalBox.querySelector('button').onclick=()=>modal.classList.remove('show');
+ modal.classList.add('show');
+ modalBox.innerHTML=`<p>${note.text}</p><button class='close'>Close</button>`;
+ modalBox.querySelector('button').onclick=()=>modal.classList.remove('show');
 }
 
 c.addEventListener('pointerdown',e=>{
-  const r=c.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
-  const m=findMarbleAt(x,y);
-  if(m){grab={m,offx:x-m.x,offy:y-m.y};m.grabbed=true;}
+ const r=c.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+ const m=findMarbleAt(x,y);
+ if(m){grab={m,offx:x-m.x,offy:y-m.y};m.grabbed=true;}
 });
 window.addEventListener('pointermove',e=>{
-  if(!grab)return;
-  const r=c.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
-  grab.m.x=x-grab.offx;grab.m.y=y-grab.offy;
+ if(!grab)return;
+ const r=c.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+ grab.m.x=x-grab.offx;grab.m.y=y-grab.offy;
 });
 window.addEventListener('pointerup',()=>{
-  if(!grab)return;
-  const m=grab.m;m.grabbed=false;
-  const neckTop=CONFIG.jar.y-CONFIG.jar.height/2+CONFIG.jar.neckY;
-  if(m.y<neckTop-26)revealMarble(m);
-  grab=null;
+ if(!grab)return;
+ const m=grab.m;m.grabbed=false;
+ const neckTop=CONFIG.jar.y-CONFIG.jar.height/2+CONFIG.jar.neckY;
+ if(m.y<neckTop-26)revealMarble(m);
+ grab=null;
 });
 
 function loop(){
-  step();
-  ctx.clearRect(0,0,c.width,c.height);
-  drawJarShape();drawMarbles();
-  requestAnimationFrame(loop);
+ step();
+ ctx.clearRect(0,0,c.width,c.height);
+ drawJarShape();drawMarbles();
+ requestAnimationFrame(loop);
 }
 
 function init(){
-  c.width=CONFIG.canvasW;c.height=CONFIG.canvasH;
-  for(const s of SAMPLES)createMarble(s);
-  loop();
+ c.width=CONFIG.canvasW;c.height=CONFIG.canvasH;
+ for(const s of SAMPLES)createMarble(s);
+ loop();
 }
 modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('show');});
 init();
