@@ -3,46 +3,120 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Love Jar — Realistic Glass Jar</title>
+<title>Love Jar — Floating Note Edition</title>
 <style>
-  :root{--bg:#fff6d9;--accent:#ff8da1}
-  html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;color:#122}
-  body{background:var(--bg);display:flex;align-items:center;justify-content:center}
-  .center{width:920px;max-width:96vw;height:700px;display:flex;align-items:center;justify-content:center;flex-direction:column}
-  .jar-wrap{position:relative;width:600px;height:620px}
-  canvas{display:block}
-  .muted{font-size:13px;color:#444;text-align:center;margin-top:10px}
-  .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(10,14,20,0.45);opacity:0;pointer-events:none;transition:opacity .18s}
-  .modal.show{opacity:1;pointer-events:auto}
-  .modal .box{background:white;padding:18px;border-radius:12px;max-width:720px;max-height:86vh;overflow:auto}
-  .close{margin-top:8px;padding:6px 10px;border-radius:8px;border:none;background:#ddd}
-  .credit{position:fixed;left:12px;bottom:10px;font-size:12px;color:#3a3a3a;opacity:0.7}
+:root {
+  --bg: #fff6d9;
+  --note: #f8f8f3;
+}
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial;
+  color: #122;
+}
+body {
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.center {
+  width: 920px;
+  max-width: 96vw;
+  height: 700px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.jar-wrap {
+  position: relative;
+  width: 600px;
+  height: 620px;
+}
+canvas {
+  display: block;
+}
+.modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10,14,20,0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .18s;
+}
+.modal.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+.modal .box {
+  background: white;
+  padding: 18px;
+  border-radius: 12px;
+  max-width: 720px;
+  max-height: 86vh;
+  overflow: auto;
+}
+.close {
+  margin-top: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: none;
+  background: #ddd;
+}
+.floating-note {
+  position: absolute;
+  padding: 12px 18px;
+  background: var(--note);
+  border-radius: 8px;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  font-size: 14px;
+  width: max-content;
+  max-width: 200px;
+  line-height: 1.4;
+  opacity: 0;
+  transform-origin: center;
+  pointer-events: none;
+  background-image:
+    radial-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+    linear-gradient(to bottom right, rgba(255,255,255,0.4), rgba(220,220,220,0.1));
+  background-size: 3px 3px, 100% 100%;
+}
+@keyframes floatUp {
+  0% { transform: scale(0.9) rotate(3deg); opacity: 0; }
+  10% { opacity: 1; }
+  60% { transform: translateY(-120px) rotate(-3deg) scale(1); opacity: 1; }
+  100% { transform: translateY(-200px) rotate(2deg) scale(1.05); opacity: 0; }
+}
+.credit {
+  position: fixed;
+  left: 12px;
+  bottom: 10px;
+  font-size: 12px;
+  color: #3a3a3a;
+  opacity: 0.7;
+}
 </style>
 </head>
 <body>
-  <div class="center">
-    <h2 style="margin:8px 0 12px 0">Love Jar — Pull a marble to reveal a note</h2>
-    <div class="jar-wrap">
-      <canvas id="c" width="600" height="620" aria-label="Glass jar with marbles"></canvas>
-      <div class="muted">Drag a marble upward out of the jar's neck to reveal a note. This page is read-only — notes are baked into the code.</div>
-    </div>
+<div class="center">
+  <h2 style="margin:8px 0 12px 0">Love Jar — Pull a marble to reveal a note</h2>
+  <div class="jar-wrap">
+    <canvas id="c" width="600" height="620"></canvas>
   </div>
-
-  <div id="modal" class="modal" role="dialog"><div class="box" id="modalBox"></div></div>
-  <div class="credit">Edit the SAMPLES array in the HTML to change messages.</div>
+</div>
+<div id="modal" class="modal"><div class="box" id="modalBox"></div></div>
+<div class="credit">Edit SAMPLES array in HTML to change messages.</div>
 
 <script>
-/* ============= Read-only Love Jar (no lid) =============
-   - The jar graphic is drawn on canvas using bezier shapes for a more realistic glass look.
-   - Notes are baked in the SAMPLES array below. Each becomes a marble.
-   - Drag a marble upward past the jar neck to 'pull' it out and reveal the note.
-   - This file is ready-to-upload as index.html.
-   ===================================================== */
-
 const SAMPLES = [
-  { id: 'fixed-1', text: "(placeholder) Pull me to find a love note." },
-  { id: 'fixed-2', text: "(placeholder) You can replace these in the HTML." },
-  { id: 'fixed-3', text: "(placeholder) Each marble hides one message for her." }
+  { id: '1', text: "(placeholder) Pull me to find a love note." },
+  { id: '2', text: "(placeholder) You can replace these in the HTML." },
+  { id: '3', text: "(placeholder) Each marble hides one message for her." }
 ];
 
 const CONFIG = {
@@ -51,134 +125,133 @@ const CONFIG = {
   gravity:0.45, friction:0.997, bounce:0.78, marbleRadius:14
 };
 
-const c = document.getElementById('c');
-const ctx = c.getContext('2d');
-let marbles = [], notesPulled = [];
-let grab = null; // {id,offx,offy}
-const modal = document.getElementById('modal'), modalBox = document.getElementById('modalBox');
+const c=document.getElementById('c');
+const ctx=c.getContext('2d');
+let marbles=[],grab=null;
+const modal=document.getElementById('modal'), modalBox=document.getElementById('modalBox');
 
-function uid(){ return 'm-'+Math.random().toString(36).slice(2,9); }
+function rand(a,b){return Math.random()*(b-a)+a;}
 
-/* ------------ Jar drawing: a nicer jar shape ------------- */
 function drawJarShape(){
-  const j = CONFIG.jar;
-  // body path using bezier curves to create jar silhouette
+  const j=CONFIG.jar;
+  const left=j.x-j.width/2,right=j.x+j.width/2,top=j.y-j.height/2,bottom=j.y+j.height/2;
   ctx.save();
-  // subtle background fill for glass body
-  const bodyPath = new Path2D();
-  const left = j.x - j.width/2; const right = j.x + j.width/2; const top = j.y - j.height/2; const bottom = j.y + j.height/2;
-  // draw left curve down to bottom then right curve back up
-  bodyPath.moveTo(left + 48, top + 40);
-  bodyPath.bezierCurveTo(left + 8, top + 120, left + 20, bottom - 60, left + 40, bottom - 24);
-  bodyPath.bezierCurveTo(left + 80, bottom + 28, right - 80, bottom + 28, right - 40, bottom - 24);
-  bodyPath.bezierCurveTo(right - 20, bottom - 60, right - 8, top + 120, right - 48, top + 40);
-  bodyPath.bezierCurveTo(right - 80, top + 10, left + 80, top + 10, left + 48, top + 40);
-
-  // fill glass gradient
-  const grad = ctx.createLinearGradient(0, top, 0, bottom);
-  grad.addColorStop(0, 'rgba(255,255,255,0.85)');
-  grad.addColorStop(0.12, 'rgba(255,255,255,0.35)');
-  grad.addColorStop(0.5, 'rgba(255,255,255,0.08)');
-  grad.addColorStop(1, 'rgba(240,240,240,0.06)');
-  ctx.fillStyle = grad;
-  ctx.fill(bodyPath);
-
-  // inner darker tint to suggest thickness
-  ctx.fillStyle = 'rgba(220,235,245,0.06)'; ctx.fill(bodyPath);
-
-  // rim (neck)
-  const neckLeft = j.x - j.neckWidth/2; const neckRight = j.x + j.neckWidth/2; const neckY = j.y - j.height/2 + j.neckY;
-  ctx.beginPath(); ctx.ellipse(j.x, neckY, j.neckWidth/2 + 8, j.rimHeight/2, 0, 0, Math.PI*2); ctx.fillStyle='rgba(255,255,255,0.96)'; ctx.fill();
-  ctx.beginPath(); ctx.ellipse(j.x, neckY, j.neckWidth/2, j.rimHeight/2 - 2, 0, 0, Math.PI*2); ctx.fillStyle='rgba(245,245,245,0.96)'; ctx.fill();
-
-  // glass highlights
-  ctx.beginPath(); ctx.moveTo(left + 56, top + 70); ctx.bezierCurveTo(left + 86, top + 120, left + 120, bottom - 20, left + 130, bottom - 6);
-  ctx.strokeStyle='rgba(255,255,255,0.6)'; ctx.lineWidth=8; ctx.stroke();
-
-  ctx.beginPath(); ctx.moveTo(right - 56, top + 80); ctx.bezierCurveTo(right - 86, top + 110, right - 120, bottom - 20, right - 130, bottom - 6);
-  ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=12; ctx.stroke();
-
-  // subtle inner rim shadow
-  ctx.beginPath(); ctx.ellipse(j.x, neckY+6, j.neckWidth/2 - 10, j.rimHeight/2 - 6, 0, 0, Math.PI*2); ctx.fillStyle='rgba(0,0,0,0.04)'; ctx.fill();
-
-  // base shadow
-  ctx.beginPath(); ctx.ellipse(j.x, bottom + 10, j.width/2 - 30, 18, 0, 0, Math.PI*2); ctx.fillStyle='rgba(0,0,0,0.08)'; ctx.fill();
+  const body=new Path2D();
+  body.moveTo(left+48,top+40);
+  body.bezierCurveTo(left+8,top+120,left+20,bottom-60,left+40,bottom-24);
+  body.bezierCurveTo(left+80,bottom+28,right-80,bottom+28,right-40,bottom-24);
+  body.bezierCurveTo(right-20,bottom-60,right-8,top+120,right-48,top+40);
+  body.bezierCurveTo(right-80,top+10,left+80,top+10,left+48,top+40);
+  const grad=ctx.createLinearGradient(0,top,0,bottom);
+  grad.addColorStop(0,'rgba(255,255,255,0.85)');
+  grad.addColorStop(1,'rgba(240,240,240,0.06)');
+  ctx.fillStyle=grad; ctx.fill(body);
+  ctx.beginPath(); ctx.ellipse(j.x,bottom+10,j.width/2-30,18,0,0,Math.PI*2);
+  ctx.fillStyle='rgba(0,0,0,0.08)'; ctx.fill();
   ctx.restore();
 }
 
-/* ------------ Marbles drawing & physics ------------ */
 function createMarble(note){
-  const r = CONFIG.marbleRadius;
-  const j = CONFIG.jar;
-  // spawn marbles scattered inside jar body area
-  const minX = j.x - j.width/2 + 40, maxX = j.x + j.width/2 - 40;
-  const x = rand(minX, maxX); const y = rand(j.y - j.height/2 + 80, j.y + j.height/2 - 40);
-  const m = {id:note.id||uid(), text:note.text||'', image:null, x,y,vx:rand(-1,1), vy:rand(-1,1), r, grabbed:false, removed:false};
-  marbles.push(m);
+  const j=CONFIG.jar;
+  const minX=j.x-j.width/2+40,maxX=j.x+j.width/2-40;
+  const x=rand(minX,maxX),y=rand(j.y-j.height/2+80,j.y+j.height/2-40);
+  marbles.push({id:note.id,text:note.text,x,y,vx:rand(-1,1),vy:rand(-1,1),r:CONFIG.marbleRadius});
 }
 
-function rand(a,b){ return Math.random()*(b-a)+a; }
-
 function drawMarbles(){
-  for(const m of marbles){ if(m.removed) continue;
-    // body
-    const grad = ctx.createRadialGradient(m.x-4,m.y-6,1,m.x,m.y,m.r);
-    grad.addColorStop(0,'rgba(255,255,255,0.95)'); grad.addColorStop(0.5,'rgba(245,245,245,0.95)'); grad.addColorStop(1,'rgba(180,200,220,0.95)');
-    ctx.beginPath(); ctx.arc(m.x,m.y,m.r,0,Math.PI*2); ctx.fillStyle = grad; ctx.fill();
-    // edge
-    ctx.lineWidth=1; ctx.strokeStyle='rgba(0,0,0,0.06)'; ctx.stroke();
-    // highlight
-    ctx.beginPath(); ctx.ellipse(m.x - m.r*0.35, m.y - m.r*0.5, m.r*0.35, m.r*0.2, 0, 0, Math.PI*2); ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.fill();
-    // label tiny if text short
-    if(m.text && m.text.length < 12){ ctx.fillStyle='rgba(20,20,20,0.7)'; ctx.font='10px Inter, sans-serif'; ctx.textAlign='center'; ctx.fillText(m.text.substring(0,12), m.x, m.y+3); }
+  for(const m of marbles){
+    const g=ctx.createRadialGradient(m.x-4,m.y-6,1,m.x,m.y,m.r);
+    g.addColorStop(0,'#fff');g.addColorStop(1,'#acc');
+    ctx.beginPath();ctx.arc(m.x,m.y,m.r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
   }
 }
 
 function step(){
-  const j = CONFIG.jar; const ix = j.width/2 - 36; const iy = j.height/2 - 36; // inner ellipse boundaries
-  for(const m of marbles){ if(m.removed) continue; if(m.grabbed) continue; m.vy += CONFIG.gravity; m.vx *= CONFIG.friction; m.vy *= CONFIG.friction; m.x += m.vx; m.y += m.vy;
-    // keep inside jar ellipse
-    const dx = (m.x - j.x)/ix; const dy = (m.y - j.y)/iy; if(dx*dx + dy*dy > 1){ const ang = Math.atan2(m.y - j.y, m.x - j.x); m.x = j.x + Math.cos(ang)*ix*0.98; m.y = j.y + Math.sin(ang)*iy*0.98; const nx = Math.cos(ang), ny = Math.sin(ang); const vdot = m.vx*nx + m.vy*ny; m.vx = m.vx - 1.9*vdot*nx; m.vy = m.vy - 1.9*vdot*ny; m.vx *= CONFIG.bounce; m.vy *= CONFIG.bounce; }
-    // floor bounce
-    if(m.y > c.height - m.r - 8){ m.y = c.height - m.r - 8; m.vy *= -CONFIG.bounce; }
+  const j=CONFIG.jar,ix=j.width/2-36,iy=j.height/2-36;
+  for(const m of marbles){
+    if(m.grabbed)continue;
+    m.vy+=CONFIG.gravity;m.vx*=CONFIG.friction;m.vy*=CONFIG.friction;
+    m.x+=m.vx;m.y+=m.vy;
+    const dx=(m.x-j.x)/ix,dy=(m.y-j.y)/iy;
+    if(dx*dx+dy*dy>1){
+      const ang=Math.atan2(m.y-j.y,m.x-j.x);
+      m.x=j.x+Math.cos(ang)*ix*0.98;m.y=j.y+Math.sin(ang)*iy*0.98;
+      const nx=Math.cos(ang),ny=Math.sin(ang);
+      const vdot=m.vx*nx+m.vy*ny;
+      m.vx-=1.9*vdot*nx;m.vy-=1.9*vdot*ny;
+      m.vx*=CONFIG.bounce;m.vy*=CONFIG.bounce;
+    }
   }
-  // pair collisions
-  for(let i=0;i<marbles.length;i++){ for(let j=i+1;j<marbles.length;j++){ const a=marbles[i], b=marbles[j]; if(a.removed||b.removed) continue; const dx=b.x-a.x, dy=b.y-a.y, dist=Math.hypot(dx,dy), min=a.r+b.r; if(dist>0 && dist<min){ const overlap=(min-dist)/2; const nx=dx/dist, ny=dy/dist; a.x -= nx*overlap; a.y -= ny*overlap; b.x += nx*overlap; b.y += ny*overlap; const vx=a.vx, vy=a.vy; a.vx=b.vx*0.95; a.vy=b.vy*0.95; b.vx=vx*0.95; b.vy=vy*0.95; } }}
 }
 
-/* ----------- Interaction: dragging marbles ----------- */
-function findMarbleAt(x,y){ for(let i=marbles.length-1;i>=0;i--){ const m=marbles[i]; if(m.removed) continue; if(Math.hypot(m.x-x,m.y-y) <= m.r+2) return m; } return null }
+function findMarbleAt(x,y){
+  for(let i=marbles.length-1;i>=0;i--){
+    const m=marbles[i];
+    if(Math.hypot(m.x-x,m.y-y)<=m.r+2)return m;
+  }
+  return null;
+}
 
-function revealMarble(m){ m.removed = true; notesPulled.unshift({id:m.id,text:m.text}); openModal({text:m.text}); }
+function revealMarble(m){
+  marbles=marbles.filter(x=>x.id!==m.id);
+  floatNote(m.x,m.y,m.text);
+}
 
-function openModal(note){ modal.classList.add('show'); modalBox.innerHTML=''; const p=document.createElement('p'); p.textContent=note.text; p.style.marginTop='8px'; modalBox.appendChild(p); const close=document.createElement('button'); close.textContent='Close'; close.className='close'; close.onclick=()=>modal.classList.remove('show'); modalBox.appendChild(close); }
+function floatNote(x,y,text){
+  const note=document.createElement('div');
+  note.className='floating-note';
+  note.textContent=text;
+  const jarRect=c.getBoundingClientRect();
+  const wrap=document.querySelector('.jar-wrap');
+  note.style.left=`${x-jarRect.left-40}px`;
+  note.style.top=`${y-jarRect.top-30}px`;
+  wrap.appendChild(note);
+  note.style.animation='floatUp 2.2s ease-out forwards';
+  note.style.opacity='1';
+  setTimeout(()=>{
+    wrap.removeChild(note);
+    openModal({text});
+  },2100);
+}
 
-/* ---------- pointer events ---------- */
-c.addEventListener('pointerdown', (e)=>{
-  const rect=c.getBoundingClientRect(); const x=e.clientX-rect.left, y=e.clientY-rect.top;
-  const m = findMarbleAt(x,y); if(m){ grab = {id:m.id, offx:x-m.x, offy:y-m.y}; m.grabbed = true; m.vx=0; m.vy=0; }
+function openModal(note){
+  modal.classList.add('show');
+  modalBox.innerHTML=`<p>${note.text}</p><button class='close'>Close</button>`;
+  modalBox.querySelector('button').onclick=()=>modal.classList.remove('show');
+}
+
+c.addEventListener('pointerdown',e=>{
+  const r=c.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+  const m=findMarbleAt(x,y);
+  if(m){grab={m,offx:x-m.x,offy:y-m.y};m.grabbed=true;}
 });
-window.addEventListener('pointermove', (e)=>{
-  if(!grab) return; const rect=c.getBoundingClientRect(); const x=e.clientX-rect.left, y=e.clientY-rect.top; const m=marbles.find(x=>x.id===grab.id); if(!m) return; m.x = x - grab.offx; m.y = y - grab.offy; });
-window.addEventListener('pointerup', (e)=>{
-  if(!grab) return; const m = marbles.find(x=>x.id===grab.id); if(m){ m.grabbed=false; // check if pulled above jar neck
-    const neckTop = CONFIG.jar.y - CONFIG.jar.height/2 + CONFIG.jar.neckY;
-    if(m.y < neckTop - 26){ revealMarble(m); }
-  } grab=null; });
+window.addEventListener('pointermove',e=>{
+  if(!grab)return;
+  const r=c.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+  grab.m.x=x-grab.offx;grab.m.y=y-grab.offy;
+});
+window.addEventListener('pointerup',()=>{
+  if(!grab)return;
+  const m=grab.m;m.grabbed=false;
+  const neckTop=CONFIG.jar.y-CONFIG.jar.height/2+CONFIG.jar.neckY;
+  if(m.y<neckTop-26)revealMarble(m);
+  grab=null;
+});
 
-/* ---------- render loop ---------- */
-function loop(){ step(); ctx.clearRect(0,0,c.width,c.height); // subtle background vignette
-  const bgGrad = ctx.createLinearGradient(0,0,0,c.height); bgGrad.addColorStop(0,'rgba(255,246,217,0.8)'); bgGrad.addColorStop(1,'rgba(255,246,217,0.95)'); ctx.fillStyle=bgGrad; ctx.fillRect(0,0,c.width,c.height);
-  drawJarShape(); drawMarbles(); requestAnimationFrame(loop); }
+function loop(){
+  step();
+  ctx.clearRect(0,0,c.width,c.height);
+  drawJarShape();drawMarbles();
+  requestAnimationFrame(loop);
+}
 
-/* ---------- initialize ---------- */
-function init(){ c.width = CONFIG.canvasW; c.height = CONFIG.canvasH; // create marbles
-  for(const s of SAMPLES){ createMarble(s); }
-  loop(); }
-
-modal.addEventListener('click',(e)=>{ if(e.target===modal) modal.classList.remove('show'); });
+function init(){
+  c.width=CONFIG.canvasW;c.height=CONFIG.canvasH;
+  for(const s of SAMPLES)createMarble(s);
+  loop();
+}
+modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('show');});
 init();
-
 </script>
 </body>
 </html>
